@@ -204,6 +204,7 @@ with tabs[2]:
 
     # Wykres: Cena pojazdów w zależności od roku
     fig, ax = plt.subplots(figsize=(10, 6))
+    ax.set_title("Cena pojazdów w zależności od roku")
     sns.boxplot(x='year', y='price', data=df, ax=ax)
     ax.set_xticklabels(ax.get_xticklabels(), rotation=45)
     st.pyplot(fig)
@@ -258,6 +259,14 @@ with tabs[4]:
         \nOba sposoby zostały przetestowane, aby ustalić, która metoda machine learningu zwróci lepszy wynik uczenia i przewidywania ceny.
           """)
 
+    df = df.dropna(subset=['price', 'year', 'mileage', 'KM', 'engine', 'fuel', 'gearbox'])
+
+    df['price'] = pd.to_numeric(df['price'], errors='coerce').fillna(0).astype(int)
+    df['year'] = pd.to_numeric(df['year'], errors='coerce').fillna(0).astype(int)
+    df['mileage'] = pd.to_numeric(df['mileage'], errors='coerce').fillna(0).astype(int)
+    df['KM'] = pd.to_numeric(df['KM'], errors='coerce').fillna(0).astype(int)
+    df['engine'] = pd.to_numeric(df['engine'], errors='coerce').fillna(0)
+
     # Wybór cech (features) i zmiennej docelowej (target)
     features = ['year', 'mileage', 'KM', 'engine', 'fuel', 'gearbox']
     target = 'price'
@@ -265,7 +274,7 @@ with tabs[4]:
     # Konwersja zmiennych kategorycznych (OneHotEncoding)
     df = pd.get_dummies(df, columns=['fuel', 'gearbox'], drop_first=True)
 
-    X = df.drop(columns=['price', 'brand', 'model', 'place', 'voivode'])  # Usuwamy tekstowe kolumny
+    X = df.drop(columns=['price', 'price_clean', 'log_price', 'brand', 'model', 'place', 'voivode'])
     y = df['price']
 
     # Podział na zbiór treningowy i testowy
@@ -294,11 +303,9 @@ with tabs[4]:
     st.write(f"Random Forest: R² = {r2_rf:.3f}")
 
     # Wizualizacja wyników
-    plt.figure(figsize=(10, 5))
-    sns.scatterplot(x=y_test, y=y_pred_rf, alpha=0.5)
-    plt.xlabel("Rzeczywista cena")
-    plt.ylabel("Przewidziana cena")
-    plt.title("Predykcja cen samochodów - Random Forest")
-    plt.show()
-
-
+    fig, ax = plt.subplots(figsize=(10, 5))
+    sns.scatterplot(x=y_test, y=y_pred_rf, alpha=0.5, ax=ax)
+    ax.set_xlabel("Rzeczywista cena")
+    ax.set_ylabel("Przewidziana cena")
+    ax.set_title("Predykcja cen samochodów - Random Forest")
+    st.pyplot(fig)
