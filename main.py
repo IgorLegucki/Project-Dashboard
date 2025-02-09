@@ -62,7 +62,7 @@ def split_car_brand(car_name, car_brands):
 
 class MySpider(scrapy.Spider):
     name = 'mySpider'
-    start_urls = [f'https://www.otomoto.pl/osobowe?page={i}' for i in range(1, 8000)]
+    start_urls = [f'https://www.otomoto.pl/osobowe?page={i}' for i in range(1, 7800)]
 
     custom_settings = {
         'LOG_LEVEL': 'INFO',
@@ -77,7 +77,7 @@ class MySpider(scrapy.Spider):
         self.car_brands = load_car_brands()
 
     def parse(self, response):
-        listings = response.css('article.ooa-1yux8sr.e1wxlbcc0')
+        listings = response.css('div[data-testid="search-results"]')
 
         for listing in listings:
             yield self._parse_listing(listing, response)
@@ -109,7 +109,7 @@ class MySpider(scrapy.Spider):
 
         item['price'] = listing.css('h3.ecit9451.ooa-1n2paoq::text').get(default='N/A').replace(' ', '')
 
-        full_text_engine = listing.css('p.e17nyt940.ooa-ay1s37::text').get(default='N/A')
+        full_text_engine = listing.css('p.ekpvtd0.ooa-1gjazjm::text').get(default='N/A')
 
         engine_match = re.search(r'(\d[\d\s]*)\s*cm3', full_text_engine)
         power_match = re.search(r'(\d+)\s*KM', full_text_engine)
